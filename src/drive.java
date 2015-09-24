@@ -7,7 +7,7 @@ public class drive {
 
 		ArrayList<Node> allNode=new ArrayList<Node> ();
 		ArrayList<String> allName=new ArrayList<String> ();
-		
+		Node start=new Node("non");
 		
 		
 		//read file: locsamp
@@ -42,22 +42,23 @@ public class drive {
 		try {
 		    String line = br.readLine();
 		    while (line != null) {
-		        line = br.readLine();
 		        //check if end of the file
 		        if (line.equals("END"))
 		        	break;
 		        String[] tmp= line.split("\\s");
-		         Map<Node,Integer> child=new HashMap<Node,Integer>(); 
-		         //System.out.println(tmp[0]+" **********************");
+		        ArrayList<Node> child=new ArrayList<Node>(); 
+		         System.out.println(tmp[0]+" **********************");
 		         for(int i=0;i<Integer.parseInt(tmp[1]);i++){
-		        	// System.out.println(tmp[2+i]);
+		        	//System.out.println(tmp[2+i]);
 		        	 int ind=allName.indexOf(tmp[2+i]);
 		        	 //System.out.println(ind);
-		        	 child.put(allNode.get(ind), 0);
+		        	 child.add(allNode.get(ind));
 		         }
 		        String name=tmp[0];
 		        int ind=allName.indexOf(name);
 		        allNode.get(ind).setChild(child);
+		        line = br.readLine();
+
 		    }
 		} finally {
 		    br.close();
@@ -71,10 +72,11 @@ public class drive {
 				while(true){
 					System.out.print("initial point:");
 					String stat=inp.nextLine();
-					if(allName.contains(stat))
+					if(allName.contains(stat)){
+						start = allNode.get(allName.indexOf(stat));
 						break;
+						}
 					System.out.println("point not exist");
-					
 				}
 				while(true){
 					System.out.print("target point:");
@@ -82,9 +84,21 @@ public class drive {
 					if(allName.contains(tgt))
 						break;
 					System.out.println("point not exist");
-					
-				}
-				
+				}//end asking 
+		//start of A* algorithm
+		System.out.println("start point: "+start.getName()); 
+		ArrayList<String> exist=new ArrayList<String> ();
+		HashMap<Integer, Node> open=new HashMap<Integer, Node> ();
+		open.put(0, start);
+		while(open.size()!=0){
+			//find the best in open
+			int min=1000000000;
+			for(int x:open.keySet())
+				if(x<min)
+					min=x;
+			Node tmp=open.get(min);
+			
+		}
 		
 	}
 	//end of main
