@@ -5,7 +5,7 @@ public class Node {
     private String name; 
     private ArrayList<Node> child=new ArrayList<Node> ();
     private int[] cord;
-    private int distance;
+    private double distance;
     
     //constructor
     public Node(String name){ 
@@ -14,10 +14,10 @@ public class Node {
         distance=0;
     } 
     //distance
-    public void setDist(int x){
+    public void setDist(double x){
     	distance=x;
     }
-    public int getDist(){
+    public double getDist(){
     	return distance;
     }
     //coordinate
