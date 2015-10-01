@@ -6,6 +6,7 @@ public class Node {
     private ArrayList<Node> child=new ArrayList<Node> ();
     private int[] cord;
     private double distance;
+    private ArrayList<String> path=new ArrayList<String> ();
     
     //constructor
     public Node(String name){ 
@@ -19,6 +20,13 @@ public class Node {
     }
     public double getDist(){
     	return distance;
+    }
+    //path
+    public void setPath(ArrayList<String> x){
+    	path=x;
+    }
+    public ArrayList<String> getPath(){
+    	return path;
     }
     //coordinate
     public void setCord(int x, int y){
@@ -46,6 +54,6 @@ public class Node {
     	String conn="";
     	for(Node tmp:child)
     		conn+=" "+tmp.getName();
-    	return name+" "+cord[0]+","+cord[1]+"conn:"+conn;
+    	return name+" "+cord[0]+","+cord[1]+"conn:"+conn+" distance to target: "+ distance;
     }
 }
