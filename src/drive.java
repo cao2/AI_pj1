@@ -88,10 +88,8 @@ public class drive {
 		         }
 		        String name=tmp[0];
 		        int ind=allName.indexOf(name);
-		        //add its heuristic to Dist using setDist
-		        double dist=dis(allNode.get(ind).getCord(),target.getCord());
 		        allNode.get(ind).setChild(child);
-		        allNode.get(ind).setDist(dist);
+		        
 		        line = br.readLine();
 
 		    }
