@@ -153,11 +153,12 @@ public class drive {
 				break;
 			}
 			else{
+				exist.add(tmp.getName());
 				for(Node x:tmp.getChild()){
-					//if(!exist.contains(x.getName()))
-						//{
+					if(!exist.contains(x.getName()))
+						{
 						//add to exist list
-						exist.add(x.getName());
+						//exist.add(x.getName());
 						//calculate distance
 						double dis1=dis(x.getCord(),tmp.getCord());
 						//add to open with new distance
@@ -171,7 +172,7 @@ public class drive {
 						tmpath.add(x.getName());
 						x.setPath(tmpath);
 						//System.out.println("add to exist and open"+x.getName());
-						//}
+						}
 				}//end of for
 				//remove the original one
 				open.remove(minkey);
