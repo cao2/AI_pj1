@@ -162,7 +162,7 @@ public class drive {
 						//calculate distance
 						double dis1=dis(x.getCord(),tmp.getCord());
 						//add to open with new distance
-						open.put((minkey+dis1), x);
+						Node tmpnewx=new Node(x);
 						//calculate its path for tracking
 						ArrayList<String> tmpath=new ArrayList<String>();
 						//copy its parent's path
@@ -170,16 +170,19 @@ public class drive {
 							tmpath.add(meow);
 						//then add node itself
 						tmpath.add(x.getName());
-						x.setPath(tmpath);
+						tmpnewx.setPath(tmpath);
+						open.put((minkey+dis1), tmpnewx);
+						
 						//System.out.println("add to exist and open"+x.getName());
 						}
 				}//end of for
 				//remove the original one
 				open.remove(minkey);
-				for(double made : open.keySet()){
-					System.out.print(made);
-					System.out.println(" "+ open.get(made).getName());
-				}
+				//testing the open list
+				//for(double made : open.keySet()){
+				//	System.out.print(made);
+				//	System.out.println(" "+ open.get(made).getName());
+				//}
 			}
 		}//end of check open
 		//System.out.println("finished");
@@ -189,6 +192,7 @@ public class drive {
 		String ed=inp.nextLine();
 		if(ed.equals("y"))
 			break;
+		//asking for new start and target point again
 		while(true){
 			System.out.print("initial point:");
 			String stat=inp.nextLine();

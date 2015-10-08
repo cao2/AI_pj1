@@ -9,6 +9,13 @@ public class Node {
     private ArrayList<String> path=new ArrayList<String> ();
     
     //constructor
+    public Node(Node x){
+    	name=x.getName();
+    	child=x.getChild();
+    	cord=x.getCord();
+    	distance=x.getDist();
+    	path=x.getPath();
+    }
     public Node(String name){ 
         this.name=name;
         cord=new int[2];
