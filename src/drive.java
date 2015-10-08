@@ -9,18 +9,17 @@ public class drive {
 		ArrayList<String> allName=new ArrayList<String> ();
 		Node start=new Node("nonstart");
 		Node target=new Node("nontarget");
-		String locsamp="";
-		String connsamp="";
+		String locsamp="locsamp.txt";
+		String connsamp="connsamp.txt";
 		
 		
-		
-				Scanner inp=new Scanner(System.in);
+		//get the input from users
+		Scanner inp=new Scanner(System.in);
+		System.out.print("sample location file paht:(for example '/local/locsamp.txt') ");
+		locsamp=inp.nextLine();
+		System.out.print("sample connection file paht:(for example '/local/connsamp.txt') ");
+		connsamp=inp.nextLine();
 			
-				System.out.print("sample location file paht:");
-				locsamp=inp.nextLine();
-				System.out.print("sample connection file paht:");
-				connsamp=inp.nextLine();
-				
 		
 		//read file: locsamp
 		BufferedReader br = new BufferedReader(new FileReader(locsamp));
@@ -30,10 +29,12 @@ public class drive {
 		        //check if end of the file
 		        if (line.equals("END"))
 		        	break;
-		        
+		        //get the content of the file and create corresponding node with it's coordinates
 		        String[] tmp= line.split("\\s");
 		        Node pt=new Node(tmp[0]);
 		        pt.setCord(Integer.parseInt(tmp[1]), Integer.parseInt(tmp[2]));
+		        //allNode store all the Node 
+		        //allName stores only name for easy and faster searching
 		        allNode.add(pt);
 		        allName.add(tmp[0]);
 		        line = br.readLine();
@@ -80,15 +81,14 @@ public class drive {
 		        	break;
 		        String[] tmp= line.split("\\s");
 		        ArrayList<Node> child=new ArrayList<Node>(); 
-		         //System.out.println(tmp[0]+" **********************");
+		        //add child node in its child list
 		         for(int i=0;i<Integer.parseInt(tmp[1]);i++){
-		        	//System.out.println(tmp[2+i]);
 		        	 int ind=allName.indexOf(tmp[2+i]);
-		        	 //System.out.println(ind);
 		        	 child.add(allNode.get(ind));
 		         }
 		        String name=tmp[0];
 		        int ind=allName.indexOf(name);
+		        //add its heuristic to Dist using setDist
 		        double dist=dis(allNode.get(ind).getCord(),target.getCord());
 		        allNode.get(ind).setChild(child);
 		        allNode.get(ind).setDist(dist);
@@ -98,23 +98,29 @@ public class drive {
 		} finally {
 		    br.close();
 		}
-		//System.out.println("finished processing file, result:");
-		//for(Node x:allNode)
-		//	System.out.println(x.toString());
 		
+		while(true){
 		
 		//start of A* algorithm
-		//System.out.println("start point: "+start.getName()); 
+		//exist stores all seen node
 		ArrayList<String> exist=new ArrayList<String> ();
+		//open stores all the unexplored node
+		//open has distance gone so far as key, and the point as key's content
 		HashMap<Double, Node> open=new HashMap<Double, Node> ();
 		open.put(0.0, start);
 		exist.add(start.getName());
 		ArrayList<String> inpath=new ArrayList<String> ();
+		//insert the path for start point
 		inpath.add(start.getName());
 		start.setPath(inpath);
+		//flag_find is to determine if a soultion is found
+		int flag_find=0;
 		while(open.size()!=0){
 			//find the best in open
-			//heuristic is stored in node, and the so far distance is in open 
+			//heuristic is stored in node 
+			
+			//min is the smallest estimation
+			//minkey is the distance done so far
 			double min=999999999;//bigest number possbile for double
 			double minkey=0;
 			for(double x:open.keySet())
@@ -124,36 +130,81 @@ public class drive {
 				}
 			
 			Node tmp=open.get(minkey);
-			System.out.println("choose: "+tmp.getName());
+			//System.out.println("**************************choose "+tmp.getName()+" : "+minkey);
+			
+			
+			//if it's the target
 			if(tmp.getName().equals(target.getName())){
-				System.out.println("reached the target!");
+				flag_find=1;
+				System.out.print("reached the target by path: ");
+				int just=0;
 				for(String meow:tmp.getPath())
-					System.out.println(meow);
+					{
+					if (just==0)
+						System.out.print(meow);
+					else if(just==tmp.getPath().size()-1){
+						System.out.println(" to "+meow);
+					}
+					else{
+						System.out.print(" to "+meow+", "+meow);
+					}
+					just++;
+					}
 				break;
 			}
 			else{
 				for(Node x:tmp.getChild()){
-					if(!exist.contains(x.getName()))
-						{
+					//if(!exist.contains(x.getName()))
+						//{
+						//add to exist list
 						exist.add(x.getName());
 						//calculate distance
 						double dis1=dis(x.getCord(),tmp.getCord());
+						//add to open with new distance
 						open.put((minkey+dis1), x);
+						//calculate its path for tracking
 						ArrayList<String> tmpath=new ArrayList<String>();
+						//copy its parent's path
 						for(String meow :tmp.getPath())
 							tmpath.add(meow);
+						//then add node itself
 						tmpath.add(x.getName());
 						x.setPath(tmpath);
-						System.out.println("add to exist and open"+x.getName());
-						}
+						//System.out.println("add to exist and open"+x.getName());
+						//}
 				}//end of for
 				//remove the original one
 				open.remove(minkey);
+				
 			}
 		}//end of check open
 		//System.out.println("finished");
+		if(flag_find==0)
+			System.out.println("didn't find a path to the target.");
+		System.out.println("end? (y or n)");
+		String ed=inp.nextLine();
+		if(ed.equals("y"))
+			break;
+		while(true){
+			System.out.print("target point:");
+			String tgt=inp.nextLine();
+			if(allName.contains(tgt)){
+				target = allNode.get(allName.indexOf(tgt));
+				break;}
+			System.out.println("point not exist");
+		}//end asking 
+		while(true){
+			System.out.print("target point:");
+			String tgt=inp.nextLine();
+			if(allName.contains(tgt)){
+				target = allNode.get(allName.indexOf(tgt));
+				break;}
+			System.out.println("point not exist");
+		}//end asking
+		}
 	}
 	//end of main
+	//function for calculating distance between two coordinates
 	public static  double dis(int[] x, int[] y){
 		double rst;
 		rst=Math.sqrt((x[0]-y[0])*(x[0]-y[0])+(x[1]-y[1])*(x[1]-y[1]));
