@@ -124,13 +124,13 @@ public class drive {
 			double min=999999999;//bigest number possbile for double
 			double minkey=0;
 			for(double x:open.keySet())
-				if(x+open.get(x).getDist()<(min)){
-					min=x+open.get(x).getDist();
+				if(x+dis(open.get(x).getCord(),target.getCord())<(min)){
+					min=x+dis(open.get(x).getCord(),target.getCord());
 					minkey=x;
 				}
 			
 			Node tmp=open.get(minkey);
-			//System.out.println("**************************choose "+tmp.getName()+" : "+minkey);
+			System.out.println("**************************choose "+tmp.getName()+" : "+minkey);
 			
 			
 			//if it's the target
@@ -175,7 +175,10 @@ public class drive {
 				}//end of for
 				//remove the original one
 				open.remove(minkey);
-				
+				for(double made : open.keySet()){
+					System.out.print(made);
+					System.out.println(" "+ open.get(made).getName());
+				}
 			}
 		}//end of check open
 		//System.out.println("finished");
@@ -186,13 +189,14 @@ public class drive {
 		if(ed.equals("y"))
 			break;
 		while(true){
-			System.out.print("target point:");
-			String tgt=inp.nextLine();
-			if(allName.contains(tgt)){
-				target = allNode.get(allName.indexOf(tgt));
-				break;}
+			System.out.print("initial point:");
+			String stat=inp.nextLine();
+			if(allName.contains(stat)){
+				start = allNode.get(allName.indexOf(stat));
+				break;
+				}
 			System.out.println("point not exist");
-		}//end asking 
+		}
 		while(true){
 			System.out.print("target point:");
 			String tgt=inp.nextLine();
