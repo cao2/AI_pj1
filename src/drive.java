@@ -130,7 +130,7 @@ public class drive {
 				}
 			
 			Node tmp=open.get(minkey);
-			System.out.println("**************************choose "+tmp.getName()+" : "+minkey);
+			//System.out.println("**************************choose "+tmp.getName()+" : "+minkey);
 			
 			
 			//if it's the target
@@ -143,10 +143,10 @@ public class drive {
 					if (just==0)
 						System.out.print(meow);
 					else if(just==tmp.getPath().size()-1){
-						System.out.println(" to "+meow);
+						System.out.println(" -> "+meow);
 					}
 					else{
-						System.out.print(" to "+meow+", "+meow);
+						System.out.print(" -> "+meow);
 					}
 					just++;
 					}
@@ -211,6 +211,8 @@ public class drive {
 			System.out.println("point not exist");
 		}//end asking
 		}
+		inp.close();
+		System.out.println("thank you");
 	}
 	//end of main
 	//function for calculating distance between two coordinates
