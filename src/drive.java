@@ -1,7 +1,21 @@
 import java.io.*;
 import java.util.*;
+//for graph
 
-public class drive {
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.LinkedList;
+
+import javax.swing.*;
+
+
+public class drive extends JComponent{
+	
+	
 //main
 	public static void main(String[] args) throws IOException{
 
@@ -9,47 +23,144 @@ public class drive {
 		ArrayList<String> allName=new ArrayList<String> ();
 		Node start=new Node("nonstart");
 		Node target=new Node("nontarget");
-		String locsamp="locsamp.txt";
-		String connsamp="connsamp.txt";
+		JFrame yuFrame = new JFrame();
 		
+		//added graphic
 		
-		//get the input from users
-		Scanner inp=new Scanner(System.in);
-		System.out.print("sample location file paht:(for example '/local/locsamp.txt') ");
-		locsamp=inp.nextLine();
-		System.out.print("sample connection file paht:(for example '/local/connsamp.txt') ");
-		connsamp=inp.nextLine();
-			
-		
-		//read file: locsamp
-		BufferedReader br = new BufferedReader(new FileReader(locsamp));
-		try {
-		    String line = br.readLine();
-		    while (line != null) {
-		        //check if end of the file
-		        if (line.equals("END"))
-		        	break;
-		        //get the content of the file and create corresponding node with it's coordinates
-		        String[] tmp= line.split("\\s");
-		        Node pt=new Node(tmp[0]);
-		        pt.setCord(Integer.parseInt(tmp[1]), Integer.parseInt(tmp[2]));
-		        //allNode store all the Node 
-		        //allName stores only name for easy and faster searching
-		        allNode.add(pt);
-		        allName.add(tmp[0]);
-		        line = br.readLine();
+		    yuFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		    final drive comp = new drive();
+		    comp.setPreferredSize(new Dimension(20, 20));
+		    yuFrame.getContentPane().add(comp, BorderLayout.CENTER);
+		    JPanel loadPanel = new JPanel();
+		    loadPanel.setLayout(new BoxLayout(loadPanel, BoxLayout.PAGE_AXIS));
+		    
+		    //location section
+		    JPanel loc=new JPanel();
+		    JTextArea location=new JTextArea("coordinate: ");
+		    JTextField locationf=new JTextField(20);
+		    JButton locationb=new JButton("..");
+		    loc.add(location);
+		    loc.add(locationf);
+		    loc.add(locationb);
+		    //connection section
+		    JPanel cor=new JPanel();
+		    JTextArea cord=new JTextArea("connection: ");
+		    JTextField corf=new JTextField(20);
+		    JButton corb=new JButton("..");
+		    cor.add(cord);
+		    cor.add(corf);
+		    cor.add(corb);
+		    
+		    JButton loadin = new JButton("Load Coordinate");
+		    
+		    loadPanel.add(loc);
+		    loadPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		    Box.createVerticalGlue();
+		    loadPanel.add(cor);
+		    loadPanel.add(loadin);
+		    
+		    //select location file prompt
+		    locationb.addActionListener(new ActionListener(){
+		    	@Override
+		    	public void actionPerformed(ActionEvent e){
+		    		JFileChooser fileChooser = new JFileChooser("choose point location file");
+		            int returnValue = fileChooser.showOpenDialog(null);
+		            if (returnValue == JFileChooser.APPROVE_OPTION) {
+		              File selectedFile = fileChooser.getSelectedFile();
+		              locationf.setText(selectedFile.getPath());
+		            }
+		    	}
+		    });
+		    
+		    //select connection file prompt
+		    corb.addActionListener(new ActionListener(){
+		    	@Override
+		    	public void actionPerformed(ActionEvent e){
+		    		JFileChooser fileChooser = new JFileChooser("choose connection file");
+		            int returnValue = fileChooser.showOpenDialog(null);
+		            if (returnValue == JFileChooser.APPROVE_OPTION) {
+		              File selectedFile = fileChooser.getSelectedFile();
+		              corf.setText(selectedFile.getPath());
+		            }
+		    	}
+		    });
+		    
+		    //load in file content
+		    loadin.addActionListener(new ActionListener() {
+		        @Override
+		        public void actionPerformed(ActionEvent e) {
+		        	//read file: locsamp
+		    		try {
+		    			//read location file
+			    		BufferedReader br = new BufferedReader(new FileReader(locationf.getText()));
+		    		    String line = br.readLine();
+		    		    while (line != null) {
+		    		        //check if end of the file
+		    		        if (line.equals("END"))
+		    		        	break;
+		    		        //get the content of the file and create corresponding node with it's coordinates
+		    		        String[] tmp= line.split("\\s");
+		    		        Node pt=new Node(tmp[0]);
+		    		        pt.setCord(Integer.parseInt(tmp[1]), Integer.parseInt(tmp[2]));
+		    		        //allNode store all the Node 
+		    		        //allName stores only name for easy and faster searching
+		    		        allNode.add(pt);
+		    		        allName.add(tmp[0]);
+		    		        line = br.readLine();
+		    		    }
+		    		    br.close();
+		    		    //read connection file
+		    		    br = new BufferedReader(new FileReader(corf.getText()));
+		    		    String line1 = br.readLine();
+		    		    while (line1 != null) {
+		    		        //check if end of the file
+		    		        if (line1.equals("END"))
+		    		        	break;
+		    		        String[] tmp= line1.split("\\s");
+		    		        ArrayList<Node> child=new ArrayList<Node>(); 
+		    		        //add child node in its child list
+		    		         for(int i=0;i<Integer.parseInt(tmp[1]);i++){
+		    		        	 int ind=allName.indexOf(tmp[2+i]);
+		    		        	 child.add(allNode.get(ind));
+		    		         }
+		    		        String name=tmp[0];
+		    		        int ind=allName.indexOf(name);
+		    		        allNode.get(ind).setChild(child);
+		    		        line1 = br.readLine();
+		    		    }
+		    		    br.close();
+		    		    System.out.println("finished reading each file");
+		    		    
+		    		} catch(IOException ex) {
+		    		   System.out.println(ex.getMessage());
+		    		}
+		            
+		        }
+		    });
+		    
+		    
+		    yuFrame.getContentPane().add(loadPanel, BorderLayout.WEST);
+		    yuFrame.pack();
+		    yuFrame.setVisible(true);
+		    yuFrame.setLocationRelativeTo(null);
+		    yuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		    }
-		} finally {
-		    br.close();
-		}
+		  //end of graphic
+		    
+		    
+	
+		//no longer needed
+		//get the input from users
+		
+		Scanner inp=new Scanner(System.in);
 		/**
-		for(String tmp:allName)
-			System.out.println(tmp);
-		System.out.println("***************");
-		for(Node tmp:allNode)
-			System.out.println(tmp.getName());
-			**/
+		System.out.print("please input path to location file :(e.g. '/local/locsamp.txt') ");
+		locsamp=inp.nextLine();
+		System.out.print("please input path to connection file:(e.g. '/local/connsamp.txt') ");
+		connsamp=inp.nextLine();
+		**/
+		
+		
 		
 		//ask for initial point and target point	
 		while(true){
@@ -71,31 +182,6 @@ public class drive {
 		}//end asking 
 		
 		
-		//read file: connsamp
-		 br = new BufferedReader(new FileReader(connsamp));
-		try {
-		    String line = br.readLine();
-		    while (line != null) {
-		        //check if end of the file
-		        if (line.equals("END"))
-		        	break;
-		        String[] tmp= line.split("\\s");
-		        ArrayList<Node> child=new ArrayList<Node>(); 
-		        //add child node in its child list
-		         for(int i=0;i<Integer.parseInt(tmp[1]);i++){
-		        	 int ind=allName.indexOf(tmp[2+i]);
-		        	 child.add(allNode.get(ind));
-		         }
-		        String name=tmp[0];
-		        int ind=allName.indexOf(name);
-		        allNode.get(ind).setChild(child);
-		        
-		        line = br.readLine();
-
-		    }
-		} finally {
-		    br.close();
-		}
 		
 		while(true){
 		
@@ -159,7 +245,6 @@ public class drive {
 						//exist.add(x.getName());
 						//calculate distance
 						double dis1=dis(x.getCord(),tmp.getCord());
-						//add to open with new distance
 						Node tmpnewx=new Node(x);
 						//calculate its path for tracking
 						ArrayList<String> tmpath=new ArrayList<String>();
@@ -169,6 +254,7 @@ public class drive {
 						//then add node itself
 						tmpath.add(x.getName());
 						tmpnewx.setPath(tmpath);
+						//add to open with new distance
 						open.put((minkey+dis1), tmpnewx);
 						
 						//System.out.println("add to exist and open"+x.getName());
@@ -186,7 +272,7 @@ public class drive {
 		//System.out.println("finished");
 		if(flag_find==0)
 			System.out.println("didn't find a path to the target.");
-		System.out.println("end? (y or n)");
+		System.out.println("Are you done searching? (y or n)");
 		String ed=inp.nextLine();
 		if(ed.equals("y"))
 			break;
