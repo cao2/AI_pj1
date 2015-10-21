@@ -3,6 +3,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.GridLayout;
+import java.awt.Graphics2D;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -176,15 +177,19 @@ public class PointPanel extends JComponent{
 	    	checks[i]=new JCheckBox(allNamelist[i]);
 	    	dis.add(checks[i]);
 	    }
-	    
+	    JButton start=new JButton("start path finding");
 	    
 		left.add(init);
 		left.add(tgt);
 		left.add(disable);
 		left.add(dis);
-
+		left.add(start);
+		
+		JFrame right=new JFrame();
+		
+		
 		rst.add(left);
-	    
+	    rst.add(right);
 		return rst;
 	}
 }
