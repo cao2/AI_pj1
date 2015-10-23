@@ -10,10 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-
 import javax.swing.*;
-
-
 
 public class PointPanel extends JComponent{
 	ArrayList<Node> allNode=new ArrayList<Node> ();
@@ -21,13 +18,9 @@ public class PointPanel extends JComponent{
 	Node start=new Node("nonstart");
 	Node target=new Node("nontarget");
 	JFrame yuFrame = new JFrame();
-
-	
 	public PointPanel(){
 	    yuFrame.setSize(200, 300);
-	    
 	    loadfile();
-	    
 	}
 
 	public void loadfile(){
@@ -35,7 +28,7 @@ public class PointPanel extends JComponent{
 	    loadPanel.setLayout(new BoxLayout(loadPanel, BoxLayout.PAGE_AXIS));
 	    //location section
 	    JPanel loc=new JPanel();
-	    JTextArea location=new JTextArea("coordinate: ");
+	    JLabel location=new JLabel("coordinate: ");
 	    JTextField locationf=new JTextField(20);
 	    locationf.setText("/Users/cao2/Documents/workspace/AI_pj1/locsamp.txt");
 	    JButton locationb=new JButton("..");
@@ -44,7 +37,7 @@ public class PointPanel extends JComponent{
 	    loc.add(locationb);
 	    //connection section
 	    JPanel cor=new JPanel();
-	    JTextArea cord=new JTextArea("connection: ");
+	    JLabel cord=new JLabel("connection: ");
 	    JTextField corf=new JTextField(20);
 	    corf.setText("/Users/cao2/Documents/workspace/AI_pj1/connsamp.txt");
 	    JButton corb=new JButton("..");
@@ -131,9 +124,10 @@ public class PointPanel extends JComponent{
 	    		    }
 	    		    br.close();
 	    		    System.out.println("finished reading each file");
-	    		    yuFrame.setLayout(new BoxLayout(loadPanel, BoxLayout.LINE_AXIS));
+	    		   
 	    		    yuFrame.remove(loadPanel);
-	    		    yuFrame.setSize(1500, 1000);
+	    		    yuFrame.setSize(1600, 1000);
+	    		    yuFrame.setLayout(new FlowLayout());
 	    		    yuFrame.setContentPane(drawpoint());
 	    		    yuFrame.validate();
 	    		    yuFrame.repaint();
@@ -156,6 +150,8 @@ public class PointPanel extends JComponent{
 		rst.setLayout(new BoxLayout(rst,BoxLayout.LINE_AXIS));
 		JPanel left=new JPanel();
 	    left.setLayout(new BoxLayout(left, BoxLayout.PAGE_AXIS));
+	    left.setAlignmentX( Component.LEFT_ALIGNMENT );
+
 	    //left.setPreferredSize(new Dimension());
 	    //initial input
 		JPanel init=new JPanel();
@@ -172,7 +168,17 @@ public class PointPanel extends JComponent{
 	    tgt.add(tgtt);
 	    tgt.add(tgtc);
 		
-	    JLabel disable=new JLabel("mark points you want to disable: ");
+	    //heuristic input
+	    JPanel heuPane=new JPanel();
+	    JLabel heu=new JLabel("Heuristic");
+	    String[] heuList=new String[2];
+	    heuList[0]="Distance";
+	    heuList[1]="Shortest number of Nodes";
+	    JComboBox<String> heut=new JComboBox<String>(heuList);
+	    heuPane.add(heu);
+	    heuPane.add(heut);
+	    JPanel disablP=new JPanel();
+	    JLabel disable=new JLabel("points to disable: ");
 	    JPanel dis=new JPanel();
 	    GridLayout grid = new GridLayout(0,3);
 	    dis.setLayout(grid);
@@ -181,20 +187,44 @@ public class PointPanel extends JComponent{
 	    	checks[i]=new JCheckBox(allNamelist[i]);
 	    	dis.add(checks[i]);
 	    }
+	    disablP.add(disable);
+	    disablP.add(dis);
 	    JButton startf=new JButton("start path finding");
-	    
+	    startf.setAlignmentX(Component.CENTER_ALIGNMENT);
+	    JPanel process=new JPanel();
+	    JButton palse=new JButton("Pause the traverse");
+	    JButton resume=new JButton("resume");
+	    process.add(palse);
+	    process.add(resume);
 	   	left.add(init);
 		left.add(tgt);
-		left.add(disable);
-		left.add(dis);
+		left.add(heuPane);
+		left.add(disablP);
 		left.add(startf);
-		left.add(Box.createRigidArea(new Dimension(0,500)));
+		left.add(Box.createRigidArea(new Dimension(0,30)));
+		left.add(process);
+		left.add(Box.createRigidArea(new Dimension(0,300)));
 
 		
 		left.setPreferredSize(new Dimension(250,700));
 		rst.add(left);
+		
+		//create graph panel
 		points right=new points();
+		right.setAlignmentX(Component.LEFT_ALIGNMENT);
 	    rst.add(right);
+	    palse.addActionListener(new ActionListener(){
+	    	@Override
+	    	public void actionPerformed(ActionEvent e){
+		    	right.pause();
+		    }
+	    });
+	    resume.addActionListener(new ActionListener(){
+	    	@Override
+	    	public void actionPerformed(ActionEvent e){
+		    	right.resume();
+		    }
+	    });
 	    startf.addActionListener(new ActionListener() {
 	        @Override
 	        public void actionPerformed(ActionEvent e) {
@@ -208,11 +238,19 @@ public class PointPanel extends JComponent{
 	            for(JCheckBox x:checks){
 	            	if(x.isSelected()==true){
 	            		int indx=allName.indexOf(x.getText());
-	            		right.addDisabled(allNode.get(indx).getCord());
+	            		right.addDisabled(allNode.get(indx));
 	            		disabledNode.add(x.getText());
 	            	}
 	            }
-	            ArrayList<Node> path=a_star(disabledNode);
+	            String heuristic=(String) heut.getSelectedItem();
+	            ArrayList<Node> path;
+	            if(heuristic.equals("Distance")){
+	            	path =a_star_node(disabledNode,right,0);
+	            }
+	            else{
+	            	path =a_star_node(disabledNode,right,1);
+	            }
+	           
 	            int[][] pathC=new int[path.size()][2];
 	            int i=0;
 	            for(Node x:path){
@@ -226,99 +264,153 @@ public class PointPanel extends JComponent{
 	    });
 		return rst;
 	}
-	public class points extends JPanel {
+	public class points extends JPanel{
 
 		private final LinkedList<Line2D> path = new LinkedList<Line2D>();
 		private final LinkedList<Node> targ=new LinkedList<Node>();
-		private final LinkedList<int[]> disabled=new LinkedList<int[]>();
-
+		private final LinkedList<Node> disabled=new LinkedList<Node>();
+		private final LinkedList<Line2D> trav=new LinkedList<Line2D>();
+		int flag_animation=-1;
+		private  final  AffineTransform forma = AffineTransform.getTranslateInstance(300,20);
         private static final long serialVersionUID = 1L;
+        Timer timer;
+        
         points() {
-            setLayout(new BorderLayout());   
+            setLayout(new BorderLayout()); 
+             timer = new Timer(2000, new ActionListener() {
+                public void actionPerformed(ActionEvent e) {  
+                    setLayout(new BorderLayout()); 
+                        	flag_animation++;
+                        	repaint();
+                }
+            });
+            timer.start();
+            
         }
-        
+       public void pause(){
+    	   timer.stop();
+       }
+       public void resume(){
+    	   timer.start();
+       }
+        public void addtrav(int x1,int y1, int x2, int y2){
+        	 Line2D tmp=new Line2D.Double(x1,y1,x2,y2);
+        	 trav.add(tmp);
+        	 //repaint();
+        }
         public void addpath(int x1, int y1, int x2, int y2){
-        	 Line2D tmp=new Line2D.Double(x1,-y1,x2,-y2);
-        	 System.out.println("new path: ("+x1+","+y1+") to ("+x2+","+y2+");" );
+        	 Line2D tmp=new Line2D.Double(x1,y1,x2,y2);
         	 path.add(tmp);
-        	 repaint();
+        	 //repaint();
         }
         
-        public void addDisabled(int[] x){
+        public void addDisabled(Node x){
         	disabled.add(x);
-        	repaint();
+        	//repaint();
         }
         public void repEverythin(){
+        	flag_animation=-1;
         	disabled.clear();
         	path.clear();
         	targ.clear();
-        	repaint();
+        	trav.clear();
+        	//repaint();
         }
         public void drawtarget(Node x, Node y){
         	targ.add(x);
         	targ.add(y);
-        	repaint();
+        	//repaint();
         }
         @Override
         public void paintComponent(Graphics g) {
+        	System.out.println("wwwww");
+        	super.paintComponent(g); 
             Graphics2D g2d = (Graphics2D) g;
-            
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-            AffineTransform forma = AffineTransform.getTranslateInstance(300,700);
-            forma.scale(1.1, 1.1);
             g2d.setTransform(forma);
-            g2d.setPaint(Color.green);
-        	int r=21;
-            for(Node x:allNode){
+            g2d.setFont(new Font("default", Font.BOLD, 12));
+            g2d.setPaint(Color.black);
+            g2d.drawLine(0, 0, 900, 0);
+            g2d.drawLine(0, 0, 0, 700);
+            g2d.drawString("x", 878, -2);
+            g2d.drawString("900", 900, 0);
+            g2d.drawString("700", 0, 700);
+            g2d.drawString("y", -10, 705);
+            g2d.drawString("0,origin", -2, -2);
+            g2d.setStroke(new BasicStroke(3));
+            int r=29;
+        	for(Node x:allNode){
             	int x1=x.getCord()[0];
             	int y1=x.getCord()[1];
             	int m=x1-r/2;
-            	int n=-y1-r/2;
+            	int n=y1-r/2;
             	g2d.setColor(Color.LIGHT_GRAY);
             	g2d.fillOval(m,n,r,r);
             	for(Node y:x.getChild()){
             		int x2[]=y.getCord();
-            		g2d.drawLine(x1, -y1, x2[0], -x2[1]);
+            		g2d.drawLine(x1, y1, x2[0], x2[1]);
             	}
             	g2d.setColor(Color.black);
-            	g2d.drawString(x.getName(), x1-10, -y1+3);
+            	g2d.drawString(x.getName(), x1-10, y1-1);
 
             }
-        	//set initial color and target color
+          //set initial color and target color
             int flag=0;
             for(Node x:targ){
             	if (flag==0){
             		flag=1;
             		int[] cord1=x.getCord();
             		g2d.setColor(Color.green);
-                    g2d.fillOval(cord1[0]-r/2, -cord1[1]-r/2, r, r);
+                    g2d.fillOval(cord1[0]-r/2, cord1[1]-r/2, r, r);
                     g2d.setColor(Color.black);
-                	g2d.drawString(x.getName(), cord1[0]-10, -cord1[1]+3);
+                	g2d.drawString(x.getName(), cord1[0]-10, cord1[1]-1);
+                	g2d.drawString("initial point", cord1[0]-10, cord1[1]-10);
             	}
             	else{
             		int[] cord2=x.getCord();
             		g2d.setColor(Color.red);
-            		g2d.fillOval(cord2[0]-r/2, -cord2[1]-r/2, r, r);
+            		g2d.fillOval(cord2[0]-r/2, cord2[1]-r/2, r, r);
             		g2d.setColor(Color.black);
-                	g2d.drawString(x.getName(), cord2[0]-10, -cord2[1]+3);
+                	g2d.drawString(x.getName(), cord2[0]-10, cord2[1]-1);
+                	g2d.drawString("target point", cord2[0]-10, cord2[1]+7);
                 	flag=0;
             	}
             }
             //set color of disabled
-            g2d.setColor(Color.GRAY);
-            for(int[] x:disabled){
-                g2d.fillOval(x[0]-r/2, -x[1]-r/2, r, r);
+            for(Node x:disabled){
+            	g2d.setColor(Color.GRAY);
+                g2d.fillOval(x.getCord()[0]-r/2, x.getCord()[1]-r/2, r, r);
+                g2d.setColor(Color.black);
+                g2d.drawString(x.getName(), x.getCord()[0]-10, x.getCord()[1]-1);
 
             }
-            g2d.setColor(Color.RED);
-            for(Line2D x: path){
-            	g2d.draw(x);
+            
+            //print traverse path one by one in blue color
+            g2d.setColor(Color.blue);
+            if(!trav.isEmpty()&&flag_animation<trav.size()){
+            	for(int ni=0;ni<=flag_animation;ni++)
+            		g2d.draw(trav.get(ni));
+            	}
+            //print final path in red color
+            else if(flag_animation>=trav.size())
+            	{
+            	g2d.setColor(Color.blue);
+            	for(Line2D x:trav)
+            		g2d.draw(x);
+            	g2d.setColor(Color.red);
+            	for(Line2D x:path)
+            		g2d.draw(x);            	
+            	}
+            //reprint node name for better view
+            g2d.setColor(Color.black);
+            for(Node x:allNode){
+            	int x1=x.getCord()[0];
+            	int y1=x.getCord()[1];
+            	g2d.drawString(x.getName(), x1-10, y1-1);
+
             }
-            super.paintComponent(g);
-            
-            
- 
         }
+
+		
     }
 
 	public double dis(int[] x, int[] y){
@@ -327,7 +419,14 @@ public class PointPanel extends JComponent{
 		return rst;
 	}
 
-	public ArrayList<Node> a_star(ArrayList<String> disabledNode){
+	public double heuristic_distance(Node x){
+		double rst=dis(x.getCord(),target.getCord());
+		return rst;
+	}
+	public double heuristic_points(){
+		return 1;
+	}
+	public ArrayList<Node> a_star_node(ArrayList<String> disabledNode, points right, int heuristic){
 		ArrayList<Node> rst=new ArrayList<Node> ();
 		while(true){
 		//start of A* algorithm
@@ -335,8 +434,8 @@ public class PointPanel extends JComponent{
 		ArrayList<String> exist=new ArrayList<String> ();
 		//open stores all the unexplored node
 		//open has distance gone so far as key, and the point as key's content
-		HashMap<Double, Node> open=new HashMap<Double, Node> ();
-		open.put(0.0, start);
+		HashMap<Node, Double> open=new HashMap<Node, Double> ();
+		open.put(start, 0.0);
 		exist.add(start.getName());
 		for(String mii:disabledNode)
 			exist.add(mii);
@@ -349,18 +448,25 @@ public class PointPanel extends JComponent{
 		while(open.size()!=0){
 			//find the best in open
 			//heuristic is stored in node 
-			
 			//min is the smallest estimation
 			//minkey is the distance done so far
 			double min=999999999;//bigest number possbile for double
-			double minkey=0;
-			for(double x:open.keySet())
-				if(x+dis(open.get(x).getCord(),target.getCord())<(min)){
-					min=x+dis(open.get(x).getCord(),target.getCord());
-					minkey=x;
-				}
-			
-			Node tmp=open.get(minkey);
+			Node minkey=new Node("NADA");
+			if(heuristic==0){
+				for(Node x:open.keySet())
+					if(open.get(x)+heuristic_distance(x)<(min)){
+						min=open.get(x)+heuristic_distance(x);
+						minkey=x;
+					}
+			}
+			else{
+				for(Node x:open.keySet())
+					if(open.get(x)+heuristic_points()<(min)){
+						min=open.get(x)+heuristic_points();
+						minkey=x;
+					}
+			}
+			Node tmp=minkey;
 			
 			
 			//if it's the target
@@ -372,20 +478,25 @@ public class PointPanel extends JComponent{
 					{
 					ind=allName.indexOf(meow);
 					rst.add(allNode.get(ind));
-					System.out.println("rst+ "+allNode.get(ind).getName());
 					}
+				String parent=tmp.getPath().get(tmp.getPath().size()-2);
+				Node parentNode=allNode.get(allName.indexOf(parent));
+				right.addtrav(parentNode.getCord()[0], parentNode.getCord()[1], tmp.getCord()[0], tmp.getCord()[1]);
 				return rst;
 				
 			}
 			else{
+				
+				if(!tmp.getName().equals(start.getName())){
+					String parent=tmp.getPath().get(tmp.getPath().size()-2);
+					Node parentNode=allNode.get(allName.indexOf(parent));
+					right.addtrav(parentNode.getCord()[0], parentNode.getCord()[1], tmp.getCord()[0], tmp.getCord()[1]);
+					}
 				exist.add(tmp.getName());
 				for(Node x:tmp.getChild()){
 					if(!exist.contains(x.getName()))
 						{
 						//add to exist list
-						//exist.add(x.getName());
-						//calculate distance
-						double dis1=dis(x.getCord(),tmp.getCord());
 						Node tmpnewx=new Node(x);
 						//calculate its path for tracking
 						ArrayList<String> tmpath=new ArrayList<String>();
@@ -396,18 +507,18 @@ public class PointPanel extends JComponent{
 						tmpath.add(x.getName());
 						tmpnewx.setPath(tmpath);
 						//add to open with new distance
-						open.put((minkey+dis1), tmpnewx);
+						if(heuristic==0)
+							open.put( tmpnewx,open.get(minkey)+dis(tmpnewx.getCord(),tmp.getCord()));
+						else
+							open.put( tmpnewx,open.get(minkey)+1);
 						
-						//System.out.println("add to exist and open"+x.getName());
 						}
 				}//end of for
+				
 				//remove the original one
 				open.remove(minkey);
 				//testing the open list
-				//for(double made : open.keySet()){
-				//	System.out.print(made);
-				//	System.out.println(" "+ open.get(made).getName());
-				//}
+				
 			}
 		}//end of check open
 		//System.out.println("finished");
