@@ -446,7 +446,7 @@ public class PointPanel extends JComponent{
             		g2d.drawLine(x1, y1, x2[0], x2[1]);
             	}
             	g2d.setColor(Color.black);
-            	g2d.drawString(x.getName(), x1-10, y1+2);
+            	g2d.drawString(x.getName(), x1-12, y1+2);
             }
           
         	painttarget(g);
@@ -465,32 +465,67 @@ public class PointPanel extends JComponent{
             	for(int ni=0;ni<=flag_animation;ni++){
             		Node x=trav.get(ni);
             		 g2d.fillOval(x.getCord()[0]-r/2, x.getCord()[1]-r/2, r, r);
-                    
             	}
             	}
             //print final path in red color
             else if(flag_animation>=trav.size())
             	{
-            	
             	g2d.setColor(Color.pink);
             	for(Node x:path)
             		 g2d.fillOval(x.getCord()[0]-r/2, x.getCord()[1]-r/2, r, r);
-                	
-            	
             	}
             
             painttarget(g);
             
             //reprint node name for better view
-            g2d.setColor(Color.black);
+            paintstring(g);
+        }
+
+        public void paintstring(Graphics g){
+        	Graphics2D g2d=(Graphics2D) g;
+        	g2d.setColor(Color.black);
             for(Node x:allNode){
             	int x1=x.getCord()[0];
             	int y1=x.getCord()[1];
-            	g2d.drawString(x.getName(), x1-10, y1+2);
+            	g2d.drawString(x.getName(), x1-12, y1+2);
 
             }
         }
+        
+        public void drawArrowLine(Graphics g, int x1, int y1, int x2, int y2){
+        	int r=29;
+            int dx = x2 - x1, dy = y2 - y1;
+            double D = Math.sqrt(dx*dx + dy*dy);
+            double xm = D - 5, xn = xm, ym = 5, yn = -5, x;
+            double sin = dy/D, cos = dx/D;
+            double x11, x22, y11, y22;
+            if(x2>x1){
+            	x11=x1+r*cos;
+            	x22=x2-r*cos;
+            }
+            else if(x2<x1){
+            	x11=x1-r*cos;
+            	x22=x2+r*cos;
+            }
+            else{
+            	x11=x1;
+            	x22=x2;
+            }
+            
+            x = xm*cos - ym*sin + x1;
+            ym = xm*sin + ym*cos + y1;
+            xm = x;
 
+            x = xn*cos - yn*sin + x1;
+            yn = xn*sin + yn*cos + y1;
+            xn = x;
+
+            int[] xpoints = {x2, (int) xm, (int) xn};
+            int[] ypoints = {y2, (int) ym, (int) yn};
+
+            g.drawLine(x1, y1, x2, y2);
+            g.fillPolygon(xpoints, ypoints, 3);
+         }
 		
     }
 
