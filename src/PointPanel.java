@@ -45,7 +45,7 @@ public class PointPanel extends JComponent{
 	    cor.add(corf);
 	    cor.add(corb);
 	    
-	    JButton loadin = new JButton("Load Coordinate");
+	    JButton loadin = new JButton("Load Files");
 	    
 	    loadPanel.add(loc);
 	    loadPanel.add(Box.createRigidArea(new Dimension(0,5)));
@@ -126,9 +126,12 @@ public class PointPanel extends JComponent{
 	    		    System.out.println("finished reading each file");
 	    		   
 	    		    yuFrame.remove(loadPanel);
-	    		    yuFrame.setSize(1600, 1000);
 	    		    yuFrame.setLayout(new FlowLayout());
 	    		    yuFrame.setContentPane(drawpoint());
+	    		    yuFrame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+	    		    //yuFrame.setUndecorated(true);
+	    		    yuFrame.setLocationRelativeTo(null);
+	    		    yuFrame.setBackground(Color.black);
 	    		    yuFrame.validate();
 	    		    yuFrame.repaint();
 	    		    
@@ -145,10 +148,27 @@ public class PointPanel extends JComponent{
 	    yuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
+	public static void setFontforall ( Component component, Font font )
+	{
+	    component.setFont ( font );
+	    component.setForeground(Color.red);
+	    component.setBackground(new Color(6,42,67));
+	    if ( component instanceof Container )
+	    {
+	        for ( Component com : ( ( Container ) component ).getComponents () )
+	        {
+	            setFontforall ( com, font );
+	        }
+	    }
+	}
+
 	public JPanel drawpoint(){
+		
+		
 		JPanel rst=new JPanel();
 		rst.setLayout(new BoxLayout(rst,BoxLayout.LINE_AXIS));
 		JPanel left=new JPanel();
+		Font font=new Font("Serif", Font.BOLD, 20);
 	    left.setLayout(new BoxLayout(left, BoxLayout.PAGE_AXIS));
 	    left.setAlignmentX( Component.LEFT_ALIGNMENT );
 
@@ -161,9 +181,11 @@ public class PointPanel extends JComponent{
 	    JComboBox<String> initc=new JComboBox<String>(allNamelist);
 	    init.add(ini);
 	    init.add(initc);
+	    
 	    //target input
 	    JPanel tgt=new JPanel();
 	    JLabel tgtt=new JLabel("target point: ");
+	    tgtt.setFont(font);
 	    JComboBox<String> tgtc=new JComboBox<String>(allNamelist);
 	    tgt.add(tgtt);
 	    tgt.add(tgtc);
@@ -172,15 +194,19 @@ public class PointPanel extends JComponent{
 	    JPanel heuPane=new JPanel();
 	    JLabel heu=new JLabel("Heuristic");
 	    String[] heuList=new String[2];
-	    heuList[0]="Distance";
-	    heuList[1]="Shortest number of Nodes";
+	    heuList[0]="Straight Line Distance";
+	    heuList[1]="Fewest Linkes";
 	    JComboBox<String> heut=new JComboBox<String>(heuList);
 	    heuPane.add(heu);
 	    heuPane.add(heut);
+	    
+	    //disabled checkbox panel
 	    JPanel disablP=new JPanel();
-	    JLabel disable=new JLabel("points to disable: ");
+	    disablP.setLayout(new BoxLayout(disablP,BoxLayout.PAGE_AXIS));
+	    JLabel disable=new JLabel("points to disable:             ");
+	    JLabel lala=new JLabel("                ");
 	    JPanel dis=new JPanel();
-	    GridLayout grid = new GridLayout(0,3);
+	    GridLayout grid = new GridLayout(0,4);
 	    dis.setLayout(grid);
 	    JCheckBox[] checks=new JCheckBox[allNamelist.length];
 	    for(int i=0;i<allNamelist.length;i++){
@@ -188,31 +214,61 @@ public class PointPanel extends JComponent{
 	    	dis.add(checks[i]);
 	    }
 	    disablP.add(disable);
+	    disablP.add(lala);
 	    disablP.add(dis);
+	    
+	    //buttons to start path finding
 	    JButton startf=new JButton("start path finding");
 	    startf.setAlignmentX(Component.CENTER_ALIGNMENT);
+	    
+	    //buttons to control the travese process
 	    JPanel process=new JPanel();
 	    JButton palse=new JButton("Pause the traverse");
 	    JButton resume=new JButton("resume");
 	    process.add(palse);
 	    process.add(resume);
+	    
+	    //add heuristic options, initial and target selection 
+		left.add(Box.createRigidArea(new Dimension(0,90)));
 	   	left.add(init);
 		left.add(tgt);
 		left.add(heuPane);
-		left.add(disablP);
+		//add buttons to start
+		left.add(Box.createRigidArea(new Dimension(0,50)));
 		left.add(startf);
+		
+		//add disabled point for selection
+		left.add(Box.createRigidArea(new Dimension(0,50)));
+		left.add(disablP);
+		
+		//add process control button
 		left.add(Box.createRigidArea(new Dimension(0,30)));
 		left.add(process);
-		left.add(Box.createRigidArea(new Dimension(0,300)));
+		left.add(Box.createRigidArea(new Dimension(0,600)));
 
+		int leftx=(int)Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+		int lefty=(int)Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+		left.setPreferredSize(new Dimension(leftx/6,lefty));
 		
-		left.setPreferredSize(new Dimension(250,700));
-		rst.add(left);
 		
 		//create graph panel
 		points right=new points();
-		right.setAlignmentX(Component.LEFT_ALIGNMENT);
+		right.setPreferredSize(new Dimension(leftx*3/5, lefty));
+		
+		//status panel
+		JPanel stat=new JPanel();
+		stat.setBackground(new Color(21,9,80));
+		stat.setPreferredSize(new Dimension(leftx/5,lefty));
+		
+		//add everything to panel
+		rst.add(left);
 	    rst.add(right);
+	    rst.add(stat);
+	    
+	    //set font for all
+	    setFontforall(rst,font);
+	    
+	    //add actionlistener for buttons
 	    palse.addActionListener(new ActionListener(){
 	    	@Override
 	    	public void actionPerformed(ActionEvent e){
@@ -251,14 +307,10 @@ public class PointPanel extends JComponent{
 	            	path =a_star_node(disabledNode,right,1);
 	            }
 	           
-	            int[][] pathC=new int[path.size()][2];
-	            int i=0;
+	            
 	            for(Node x:path){
-	            	pathC[i]=x.getCord();
-	            	i++;
-	            }
-	            for(i=0;i<path.size()-1;i++){
-	            	right.addpath(pathC[i][0], pathC[i][1], pathC[i+1][0], pathC[i+1][1]);
+	            	
+	            	right.addpath(x);
 	            }
 	        }
 	    });
@@ -266,22 +318,27 @@ public class PointPanel extends JComponent{
 	}
 	public class points extends JPanel{
 
-		private final LinkedList<Line2D> path = new LinkedList<Line2D>();
+		private final LinkedList<Node> path = new LinkedList<Node>();
 		private final LinkedList<Node> targ=new LinkedList<Node>();
 		private final LinkedList<Node> disabled=new LinkedList<Node>();
-		private final LinkedList<Line2D> trav=new LinkedList<Line2D>();
+		private final LinkedList<Node> trav=new LinkedList<Node>();
 		int flag_animation=-1;
-		private  final  AffineTransform forma = AffineTransform.getTranslateInstance(300,20);
+		int leftx=(int)Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+		private  final  AffineTransform forma = AffineTransform.getTranslateInstance(20,100);
+		
         private static final long serialVersionUID = 1L;
         Timer timer;
         
         points() {
-            setLayout(new BorderLayout()); 
+        	forma.scale(1.5, 1.5);
+            //setLayout(new BorderLayout()); 
+            setForeground(Color.white);
              timer = new Timer(2000, new ActionListener() {
                 public void actionPerformed(ActionEvent e) {  
                     setLayout(new BorderLayout()); 
-                        	flag_animation++;
-                        	repaint();
+                	setForeground(Color.white);
+                    flag_animation++;
+                    repaint();
                 }
             });
             timer.start();
@@ -293,13 +350,12 @@ public class PointPanel extends JComponent{
        public void resume(){
     	   timer.start();
        }
-        public void addtrav(int x1,int y1, int x2, int y2){
-        	 Line2D tmp=new Line2D.Double(x1,y1,x2,y2);
+        public void addtrav(Node tmp){
         	 trav.add(tmp);
         	 //repaint();
         }
-        public void addpath(int x1, int y1, int x2, int y2){
-        	 Line2D tmp=new Line2D.Double(x1,y1,x2,y2);
+        public void addpath(Node tmp){
+        	 
         	 path.add(tmp);
         	 //repaint();
         }
@@ -321,22 +377,62 @@ public class PointPanel extends JComponent{
         	targ.add(y);
         	//repaint();
         }
+        public void painttarget(Graphics g){
+        	Graphics2D g2d=(Graphics2D) g;
+        	int r=29;
+        	//set initial color and target color
+            int flag=0;
+            for(Node x:targ){
+            	//paint initial first
+            	//colored green
+            	if (flag==0){
+            		flag=1;
+            		int[] cord1=x.getCord();
+            		g2d.setColor(Color.green);
+                    g2d.fillOval(cord1[0]-r/2, cord1[1]-r/2, r, r);
+                    g2d.setColor(Color.black);
+                	g2d.drawString(x.getName(), cord1[0]-10, cord1[1]-1);
+            	}
+            	//paint target color as red
+            	else{
+            		int[] cord2=x.getCord();
+            		g2d.setColor(Color.red);
+            		g2d.fillOval(cord2[0]-r/2, cord2[1]-r/2, r, r);
+            		g2d.setColor(Color.black);
+                	g2d.drawString(x.getName(), cord2[0]-10, cord2[1]-1);
+                	flag=0;
+            	}
+            }
+        }
         @Override
         public void paintComponent(Graphics g) {
-        	System.out.println("wwwww");
         	super.paintComponent(g); 
             Graphics2D g2d = (Graphics2D) g;
-            g2d.setTransform(forma);
-            g2d.setFont(new Font("default", Font.BOLD, 12));
-            g2d.setPaint(Color.black);
-            g2d.drawLine(0, 0, 900, 0);
-            g2d.drawLine(0, 0, 0, 700);
-            g2d.drawString("x", 878, -2);
-            g2d.drawString("900", 900, 0);
-            g2d.drawString("700", 0, 700);
-            g2d.drawString("y", -10, 705);
-            g2d.drawString("0,origin", -2, -2);
+            g2d.transform(forma);
+            //draw axis
+            g2d.setColor(Color.white);
+            g2d.drawLine(0, 0, 800, 0);
+            g2d.drawLine(0, 0, 0, 800);
+            g2d.drawString("x", 778, -2);
+           // g2d.drawString("800", 800, 0);
+           // g2d.drawString("800", 0, 800);
+            g2d.drawString("y", -10, 785);
+            g2d.drawString("0,0", -2, -2);
             g2d.setStroke(new BasicStroke(3));
+            //draw color hint
+            
+            g2d.drawString("initial point :", -2, -25);
+            g2d.drawString("target point :", 200, -25);
+            g2d.drawString("traverse path :", 400, -25);
+            g2d.drawString("final point :", 600, -25);
+            g2d.setColor(Color.green);
+            g2d.fillRect(122, -40, 50, 20);
+            g2d.setColor(Color.red);
+            g2d.fillRect(330, -40, 50, 20);
+            g2d.setColor(Color.blue);
+            g2d.fillRect(530, -40, 50, 20);
+            g2d.setColor(Color.pink);
+            g2d.fillRect(730, -40, 50, 20);
             int r=29;
         	for(Node x:allNode){
             	int x1=x.getCord()[0];
@@ -350,31 +446,10 @@ public class PointPanel extends JComponent{
             		g2d.drawLine(x1, y1, x2[0], x2[1]);
             	}
             	g2d.setColor(Color.black);
-            	g2d.drawString(x.getName(), x1-10, y1-1);
-
+            	g2d.drawString(x.getName(), x1-10, y1+2);
             }
-          //set initial color and target color
-            int flag=0;
-            for(Node x:targ){
-            	if (flag==0){
-            		flag=1;
-            		int[] cord1=x.getCord();
-            		g2d.setColor(Color.green);
-                    g2d.fillOval(cord1[0]-r/2, cord1[1]-r/2, r, r);
-                    g2d.setColor(Color.black);
-                	g2d.drawString(x.getName(), cord1[0]-10, cord1[1]-1);
-                	g2d.drawString("initial point", cord1[0]-10, cord1[1]-10);
-            	}
-            	else{
-            		int[] cord2=x.getCord();
-            		g2d.setColor(Color.red);
-            		g2d.fillOval(cord2[0]-r/2, cord2[1]-r/2, r, r);
-            		g2d.setColor(Color.black);
-                	g2d.drawString(x.getName(), cord2[0]-10, cord2[1]-1);
-                	g2d.drawString("target point", cord2[0]-10, cord2[1]+7);
-                	flag=0;
-            	}
-            }
+          
+        	painttarget(g);
             //set color of disabled
             for(Node x:disabled){
             	g2d.setColor(Color.GRAY);
@@ -387,25 +462,31 @@ public class PointPanel extends JComponent{
             //print traverse path one by one in blue color
             g2d.setColor(Color.blue);
             if(!trav.isEmpty()&&flag_animation<trav.size()){
-            	for(int ni=0;ni<=flag_animation;ni++)
-            		g2d.draw(trav.get(ni));
+            	for(int ni=0;ni<=flag_animation;ni++){
+            		Node x=trav.get(ni);
+            		 g2d.fillOval(x.getCord()[0]-r/2, x.getCord()[1]-r/2, r, r);
+                    
+            	}
             	}
             //print final path in red color
             else if(flag_animation>=trav.size())
             	{
-            	g2d.setColor(Color.blue);
-            	for(Line2D x:trav)
-            		g2d.draw(x);
-            	g2d.setColor(Color.red);
-            	for(Line2D x:path)
-            		g2d.draw(x);            	
+            	
+            	g2d.setColor(Color.pink);
+            	for(Node x:path)
+            		 g2d.fillOval(x.getCord()[0]-r/2, x.getCord()[1]-r/2, r, r);
+                	
+            	
             	}
+            
+            painttarget(g);
+            
             //reprint node name for better view
             g2d.setColor(Color.black);
             for(Node x:allNode){
             	int x1=x.getCord()[0];
             	int y1=x.getCord()[1];
-            	g2d.drawString(x.getName(), x1-10, y1-1);
+            	g2d.drawString(x.getName(), x1-10, y1+2);
 
             }
         }
@@ -441,7 +522,7 @@ public class PointPanel extends JComponent{
 			exist.add(mii);
 		ArrayList<String> inpath=new ArrayList<String> ();
 		//insert the path for start point
-		inpath.add(start.getName());
+		//inpath.add(start.getName());
 		start.setPath(inpath);
 		//flag_find is to determine if a soultion is found
 		int flag_find=0;
@@ -479,18 +560,16 @@ public class PointPanel extends JComponent{
 					ind=allName.indexOf(meow);
 					rst.add(allNode.get(ind));
 					}
-				String parent=tmp.getPath().get(tmp.getPath().size()-2);
-				Node parentNode=allNode.get(allName.indexOf(parent));
-				right.addtrav(parentNode.getCord()[0], parentNode.getCord()[1], tmp.getCord()[0], tmp.getCord()[1]);
+			
+				right.addtrav(tmp);
 				return rst;
 				
 			}
 			else{
 				
 				if(!tmp.getName().equals(start.getName())){
-					String parent=tmp.getPath().get(tmp.getPath().size()-2);
-					Node parentNode=allNode.get(allName.indexOf(parent));
-					right.addtrav(parentNode.getCord()[0], parentNode.getCord()[1], tmp.getCord()[0], tmp.getCord()[1]);
+					
+					right.addtrav(tmp);
 					}
 				exist.add(tmp.getName());
 				for(Node x:tmp.getChild()){
