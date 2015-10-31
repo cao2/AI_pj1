@@ -458,7 +458,6 @@ public class PointPanel extends JComponent{
             g2d.fillRect(360, -40, 50, 20);
             g2d.setColor(Color.yellow);
             g2d.fillRect(495, -40, 50, 20);
-            
             g2d.setColor(Color.LIGHT_GRAY);
             g2d.fillRect(640, -40, 50, 20);
             g2d.setColor(Color.darkGray);
@@ -668,6 +667,8 @@ public class PointPanel extends JComponent{
 				stat.add(new JLabel("---------------------------"));
 				JLabel meow1=new JLabel("************reached the target*********** ");
 				stat.add(new JLabel("---------------------------"));
+				
+				
 				stat.add(meow1);
 				int ind;
 				for(String meow:tmp.getPath())
@@ -683,6 +684,20 @@ public class PointPanel extends JComponent{
 		            	final_path+=x.getName()+": ";
 				 }
 				stat.add(new JLabel(final_path));
+				stat.add(new JLabel("░░░░░░░░░░░░░░░░░████████████"));
+				stat.add(new JLabel("░░ ███████░░░░░███▒▒▒▒▒▒▒▒▒▒▒▒▒▒███"));
+				stat.add(new JLabel("░░░█▒▒▒▒▒▒█░░░██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"));
+				stat.add(new JLabel("░░░░█▒▒▒▒▒█░░██▒▒▒▒▒██▒▒▒▒▒▒██▒▒▒▒▒███"));
+				stat.add(new JLabel("░░░░░█▒▒▒█░░█▒▒▒▒▒▒████▒▒▒▒████▒▒▒▒▒██"));
+				stat.add(new JLabel("░█████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"));
+				stat.add(new JLabel("░░░█▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒▒▒██"));
+				stat.add(new JLabel("░██▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒██▒▒▒▒▒▒▒▒▒▒██▒▒▒▒██"));
+				stat.add(new JLabel("█████████████▒██▒▒▒▒▒▒▒▒▒██▒▒▒▒▒██"));
+				stat.add(new JLabel("█▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒████████▒▒▒▒▒▒██"));
+				stat.add(new JLabel("██▒▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"));
+				stat.add(new JLabel("░█▒▒▒███████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"));
+				stat.add(new JLabel("░██▒▒▒▒▒▒▒▒▒▒████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█"));
+				stat.add(new JLabel("░░████████████░█████████████████"));
 				return stat;
 				
 			}
@@ -710,7 +725,7 @@ public class PointPanel extends JComponent{
 				stat.add(new JLabel(chose_path));
 				stat.add(new JLabel("estimated distance: "+ Double.toString(min)));
 				stat.add(new JLabel("by now done distance: "+ Double.toString(open.get(minkey))));
-				stat.add(new JLabel("open list: name, straight line distance: "));
+				stat.add(new JLabel("open list: (name, distance walked so far, total estimation): "));
 				
 				
 				//remove the original one
@@ -720,7 +735,7 @@ public class PointPanel extends JComponent{
 				int openflag=0;
 				JLabel tmp5[]=new JLabel[open.keySet().size()];
 				for(Node x:open.keySet()){
-					tmp5[openflag]=new JLabel(x.getName()+",	"+Double.toString(open.get(x)));
+					tmp5[openflag]=new JLabel(x.getName()+","+Double.toString(open.get(x))+",		"+Double.toString(open.get(x)+dis(x.getCord(),target.getCord())));
 					stat.add(tmp5[openflag]);
 					openflag++;
 				}
