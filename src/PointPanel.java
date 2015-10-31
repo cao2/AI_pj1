@@ -21,8 +21,10 @@ public class PointPanel extends JComponent{
 	Node start=new Node("nonstart");
 	Node target=new Node("nontarget");
 	JFrame yuFrame = new JFrame();
+	
 	public PointPanel(){
 	    yuFrame.setSize(200, 300);
+	    yuFrame.setTitle("A* algorithm");
 	    loadfile();
 	}
 
@@ -174,6 +176,7 @@ public class PointPanel extends JComponent{
 		
 		
 		JPanel rst=new JPanel();
+		
 		rst.setLayout(new BoxLayout(rst,BoxLayout.LINE_AXIS));
 		JPanel left=new JPanel();
 		Font font=new Font("Serif", Font.BOLD, 14);
@@ -678,10 +681,10 @@ public class PointPanel extends JComponent{
 					}
 			     
 				//add final path to status log
-				 String final_path="Final path: ";
+				 String final_path="Final path: "+start.getName();
 				 for(Node x:rst){
 		            	right.addpath(x);
-		            	final_path+=x.getName()+": ";
+		            	final_path+="->"+x.getName();
 				 }
 				stat.add(new JLabel(final_path));
 				stat.add(new JLabel("░░░░░░░░░░░░░░░░░████████████"));
@@ -692,12 +695,12 @@ public class PointPanel extends JComponent{
 				stat.add(new JLabel("░█████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"));
 				stat.add(new JLabel("░░░█▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒▒▒██"));
 				stat.add(new JLabel("░██▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒██▒▒▒▒▒▒▒▒▒▒██▒▒▒▒██"));
-				stat.add(new JLabel("█████████████▒██▒▒▒▒▒▒▒▒▒██▒▒▒▒▒██"));
+				stat.add(new JLabel("█████████████▒▒▒▒██▒▒▒▒▒▒▒▒▒██▒▒▒██"));
 				stat.add(new JLabel("█▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒████████▒▒▒▒▒▒██"));
 				stat.add(new JLabel("██▒▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"));
-				stat.add(new JLabel("░█▒▒▒███████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"));
-				stat.add(new JLabel("░██▒▒▒▒▒▒▒▒▒▒████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█"));
-				stat.add(new JLabel("░░████████████░█████████████████"));
+				stat.add(new JLabel("░█▒▒▒█████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"));
+				stat.add(new JLabel("░██▒▒▒▒▒▒▒▒▒▒███▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█"));
+				stat.add(new JLabel("░░████████████░████████████"));
 				return stat;
 				
 			}
@@ -715,9 +718,9 @@ public class PointPanel extends JComponent{
 				
 				
 				//print infos about chose node
-				String chose_path="Path: ";
+				String chose_path="Path: "+start.getName();
 				for(String meow: tmp.getPath())
-					chose_path+=meow+" ";
+					chose_path+="->"+meow;
 				//add status log
 				stat.add(new JLabel("-------------------------------"));
 				stat.add(new JLabel("reached node "+tmp.getName()));
@@ -735,7 +738,12 @@ public class PointPanel extends JComponent{
 				int openflag=0;
 				JLabel tmp5[]=new JLabel[open.keySet().size()];
 				for(Node x:open.keySet()){
-					tmp5[openflag]=new JLabel(x.getName()+","+Double.toString(open.get(x))+",		"+Double.toString(open.get(x)+dis(x.getCord(),target.getCord())));
+					double heu;
+					if(heuristic==0)
+						heu=open.get(x)+dis(x.getCord(),target.getCord());
+					else
+						heu=open.get(x)+1;
+					tmp5[openflag]=new JLabel(x.getName()+","+Double.toString(open.get(x))+",		"+heu);
 					stat.add(tmp5[openflag]);
 					openflag++;
 				}
@@ -744,8 +752,10 @@ public class PointPanel extends JComponent{
 		}//end of check open
 		//System.out.println("finished");
 		if(flag_find==0)
-			System.out.println("didn't find a path to the target.");
-			return stat;
+			JOptionPane.showMessageDialog(yuFrame,
+				    "No path can be found, sorry");
+			//System.out.println("didn't find a path to the target.");
+		return stat;
 		
 	}
 	
